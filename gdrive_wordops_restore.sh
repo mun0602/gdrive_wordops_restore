@@ -14,6 +14,11 @@ if ! wo site create $NEWDOMAIN --wp; then
     exit 1
 fi
 
+# 2. Clean default data from the new site
+sudo -u www-data -H wp db clean --yes --path=/var/www/$NEWDOMAIN/htdocs
+rm -rf /var/www/$NEWDOMAIN/htdocs/*
+fi
+
 # Step 3: Install gdown if not already installed
 if ! command -v gdown &> /dev/null
 then
