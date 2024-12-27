@@ -8,10 +8,19 @@ read -p "Enter the Google Drive file URL for the website (ZIP file): " GDRIVE_WE
 read -p "Enter the Google Drive file URL for the database (SQL file): " GDRIVE_DATABASE_URL
 
 # Step 2: Create a new WordPress site with WordOps (with error checking)
-echo "Creating a new WordPress site for $NEWDOMAIN..."
-if ! wo site create $NEWDOMAIN --wp; then
-    echo "Failed to create WordPress site for $NEWDOMAIN. Exiting."
-    exit 1
+if wo site info $NEWDOMAIN > /dev/null 2>&1; then
+    echo "Site $NEWDOMAIN already exists. Skipping creation."
+else
+    echo "Creating a new WordPress site for $NEWDOMAIN..."
+    if ! wo site create $NEWDOMAIN --wp; then
+        echo "Failed to create WordPress site for $NEWDOMAIN. Exiting."
+        exit 1
+    fi
+
+    # Clean default data from the new site
+    sudo -u www-data -H wp db clean --yes --path=/var/www/$NEWDOMAIN/htdocs
+    rm -rf /var/www/$NEWDOMAIN/htdocs/*
+fi
 fi
 
 # 2. Clean default data from the new site
